@@ -3459,17 +3459,32 @@ function init() {
 function onResize() {
     const gameArea = document.getElementById('gameArea');
     const sidebar = document.getElementById('sidebar');
-    const isMobile = window.innerWidth <= 768;
+    const header = document.getElementById('header');
+    const mobileControls = document.getElementById('mobileControls');
+    const mainContainer = document.getElementById('mainContainer');
+    const mainStyle = mainContainer ? window.getComputedStyle(mainContainer) : null;
+    const isColumnLayout = mainStyle ? mainStyle.flexDirection === 'column' : false;
+    const sidebarVisible = sidebar && sidebar.offsetParent !== null;
     
     // Calculate available space
     let availableWidth = gameArea.clientWidth - 20;
     let availableHeight = gameArea.clientHeight - 20;
     
-    // Account for sidebar on desktop
-    if (!isMobile && sidebar && sidebar.offsetParent !== null) {
-        availableWidth = (window.innerWidth - sidebar.offsetWidth - 40);
-        availableHeight = window.innerHeight - document.getElementById('header').offsetHeight - 40;
+    // Account for sidebar on desktop row layout
+    if (!isColumnLayout && sidebarVisible) {
+        availableWidth = window.innerWidth - sidebar.offsetWidth - 40;
+        availableHeight = window.innerHeight - (header ? header.offsetHeight : 0) - 40;
+    } else {
+        const headerHeight = header ? header.offsetHeight : 0;
+        const controlsHeight = (mobileControls && mobileControls.offsetParent !== null)
+            ? mobileControls.offsetHeight
+            : 0;
+        availableWidth = window.innerWidth - 24;
+        availableHeight = window.innerHeight - headerHeight - controlsHeight - 24;
     }
+
+    availableWidth = Math.max(200, availableWidth);
+    availableHeight = Math.max(120, availableHeight);
     
     // Calculate scale to fit while maintaining aspect ratio
     const gameAspect = CANVAS_WIDTH / CANVAS_HEIGHT;
@@ -3485,7 +3500,7 @@ function onResize() {
     }
     
     // Limit max scale for very large screens
-    scale = Math.min(scale, 1.5);
+    scale = Math.min(scale, 1.7);
     
     // Apply scale via CSS transform for crisp rendering
     canvas.style.width = `${CANVAS_WIDTH * scale}px`;
