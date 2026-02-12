@@ -510,7 +510,6 @@
             border-bottom: 1px solid #5d4037;
             padding-bottom: 3px;
         }
-        }
         
         .restart-btn {
             padding: 12px 28px;
@@ -636,18 +635,16 @@
             }
             
             #gameArea {
-                flex: 1;
-                padding: 5px;
+                flex: 1 1 auto;
+                padding: 6px;
+                align-items: flex-start;
+                justify-content: flex-start;
             }
             
             #mobileControls {
                 display: block;
-                position: fixed;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                z-index: 50;
-                backdrop-filter: blur(6px);
+                position: static;
+                z-index: 10;
             }
             
             h1 {
@@ -658,6 +655,10 @@
                 width: 100%;
                 justify-content: center;
                 flex-wrap: wrap;
+            }
+
+            #gameCanvas {
+                margin-top: 2px;
             }
         }
         
