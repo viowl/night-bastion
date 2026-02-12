@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Guardians of the Realm - Tower Defense</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0d3328 0%, #1a5c3a 50%, #0d3328 100%);
+            color: #fff;
+        }
+        
+        #app {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header - Compact */
+        #header {
+            flex: 0 0 auto;
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 2px solid #5d4037;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 1.4em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            background: linear-gradient(45deg, #f39c12, #e74c3c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            white-space: nowrap;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .header-btn {
+            background: linear-gradient(135deg, #8d6e63 0%, #6d4c41 100%);
+            border: 2px solid #5d4037;
+            border-radius: 6px;
+            color: white;
+            font-size: 1.2em;
+            padding: 6px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header-btn:hover {
+            background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+            transform: scale(1.05);
+        }
+        
+        .header-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Audio Panel Styles */
+        .audio-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .track-info {
+            text-align: center;
+            font-size: 0.75em;
+            color: #ffd54f;
+            padding: 3px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-controls {
+            display: flex;
+            justify-content: center;
+            gap: 3px;
+        }
+
+        .track-btn {
+            background: linear-gradient(135deg, #8d6e63 0%, #6d4c41 100%);
+            border: 2px solid #5d4037;
+            border-radius: 4px;
+            color: white;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+
+        .track-btn:hover {
+            background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        }
+
+        .volume-control {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .volume-control label {
+            font-size: 0.7em;
+            color: #c8e6c9;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .mute-all-btn {
+            width: 100%;
+            padding: 4px;
+            background: linear-gradient(135deg, #8d6e63 0%, #6d4c41 100%);
+            border: 2px solid #5d4037;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.75em;
+            margin-top: 3px;
+        }
+        
+        .mute-all-btn:hover {
+            background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        }
+
+        input[type="range"].volume-slider {
+            width: 100%;
+            height: 4px;
+            margin: 2px 0;
+        }
+
+        /* Main Game Area */
+        #mainContainer {
+            flex: 1;
+            display: flex;
+            min-height: 0;
+            align-items: flex-start;
+        }
+        
+        /* Game Canvas Container */
+        #gameArea {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            min-width: 0;
+            position: relative;
+        }
+        
+        #gameCanvas {
+            border: 3px solid #5d4e37;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.6);
+            cursor: crosshair;
+            background: linear-gradient(135deg, #2d5016 0%, #3d6b22 100%);
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        /* Sidebar - Fixed on right */
+        #sidebar {
+            flex: 0 0 280px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 8px;
+            background: rgba(0,0,0,0.2);
+            border-left: 2px solid #5d4037;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: sticky;
+            top: 0;
+            height: calc(100vh - 60px);
+            max-height: calc(100vh - 60px);
+        }
+        
+        /* Compact Panels */
+        .panel {
+            flex: 0 0 auto;
+            background: linear-gradient(135deg, rgba(46, 125, 50, 0.95) 0%, rgba(27, 94, 32, 0.95) 100%);
+            border-radius: 6px;
+            padding: 6px;
+            border: 2px solid #5d4037;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 4px;
+        }
+        
+        .panel h3 {
+            margin: 0 0 4px 0;
+            color: #ffd54f;
+            border-bottom: 2px solid #ffd54f;
+            padding-bottom: 2px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            font-size: 0.85em;
+            text-align: center;
+        }
+        
+        /* Panel type indicators */
+        .panel:nth-child(1) h3 { border-color: #f1c40f; }
+        .panel:nth-child(2) h3 { border-color: #e67e22; }
+        .panel:nth-child(3) h3 { border-color: #3498db; }
+        .panel:nth-child(4) h3 { border-color: #9b59b6; }
+        .panel:nth-child(5) h3 { border-color: #1abc9c; }
+        
+        /* Resources - Compact Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85em;
+            padding: 3px 5px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: #2ecc71;
+        }
+        
+        .stat-value.warning {
+            color: #e74c3c;
+        }
+        
+        /* Tower Buttons - Compact */
+        .tower-btn {
+            width: 100%;
+            padding: 6px 8px;
+            margin: 2px 0;
+            background: linear-gradient(135deg, #8d6e63 0%, #6d4c41 100%);
+            border: 2px solid #5d4037;
+            border-radius: 5px;
+            color: white;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.3);
+        }
+        
+        .tower-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .tower-btn:hover {
+            background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        }
+        
+        .tower-btn:disabled {
+            background: #4a4a4a;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .tower-btn.selected {
+            box-shadow: 0 0 0 2px #ffd54f;
+            background: linear-gradient(135deg, #a1887f 0%, #8d6e63 100%);
+        }
+        
+        .cost {
+            background: #f1c40f;
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.8em;
+        }
+        
+        /* Controls - Horizontal */
+        .controls {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .control-btn {
+            flex: 1;
+            padding: 8px 5px;
+            background: #e74c3c;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .control-btn.secondary {
+            background: #3498db;
+        }
+        
+        .control-btn:hover {
+            opacity: 0.9;
+        }
+        
+        /* Guide - Compact */
+        .info-text {
+            font-size: 0.7em;
+            color: #c8e6c9;
+            line-height: 1.2;
+            margin-top: 4px;
+        }
+        
+        .damage-type-legend {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2px;
+            font-size: 0.65em;
+            margin-top: 4px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        /* Upgrade Panel */
+        .upgrade-panel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            background: linear-gradient(135deg, rgba(46, 125, 50, 0.98) 0%, rgba(27, 94, 32, 0.98) 100%);
+            border: 3px solid #5d4037;
+            border-radius: 12px;
+            padding: 15px;
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+        
+        .upgrade-panel.active {
+            display: block;
+        }
+        
+        .upgrade-btn {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 0.85em;
+            cursor: pointer;
+        }
+        
+        .upgrade-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .upgrade-btn.affordable {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        .selected-tower-info {
+            background: rgba(52, 152, 219, 0.2);
+            border: 1px solid #3498db;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e74c3c;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            color: white;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+        
+        /* End Screens */
+        #gameOverScreen, #victoryScreen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 1000;
+        }
+        
+        #gameOverScreen.active, #victoryScreen.active {
+            display: flex;
+        }
+        
+        .end-screen-content {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #1b5e20 100%);
+            border-radius: 15px;
+            border: 4px solid #5d4037;
+            max-width: 90%;
+            width: 400px;
+        }
+        
+        .end-screen-content h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+        
+        #gameOverScreen h2 {
+            color: #ff8a80;
+        }
+        
+        #victoryScreen h2 {
+            color: #ffd54f;
+        }
+        
+        /* Tower Hover Tooltip */
+        .tower-tooltip {
+            position: absolute;
+            display: none;
+            background: linear-gradient(135deg, rgba(46, 125, 50, 0.98) 0%, rgba(27, 94, 32, 0.98) 100%);
+            border: 3px solid #5d4037;
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 0.85em;
+            z-index: 1000;
+            pointer-events: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            min-width: 180px;
+            max-width: 250px;
+            line-height: 1.4;
+        }
+        
+        .tower-tooltip strong {
+            color: #ffd54f;
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #5d4037;
+            padding-bottom: 3px;
+        }
+        }
+        
+        .restart-btn {
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background: linear-gradient(135deg, #8d6e63 0%, #6d4c41 100%);
+            border: 3px solid #5d4037;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        
+        /* Mobile Bottom Bar */
+        #mobileControls {
+            display: none;
+            flex: 0 0 auto;
+            background: rgba(0,0,0,0.4);
+            border-top: 2px solid #5d4037;
+            padding: 8px;
+        }
+        
+        .mobile-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 8px;
+            font-size: 0.85em;
+        }
+        
+        .mobile-tower-bar {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+        
+        .mobile-tower-btn {
+            flex: 1;
+            padding: 10px 5px;
+            background: linear-gradient(135deg, #8d6e63 0%, #6d4c41 100%);
+            border: 2px solid #5d4037;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.75em;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .mobile-tower-btn.selected {
+            box-shadow: 0 0 0 2px #ffd54f;
+        }
+        
+        .mobile-tower-btn:disabled {
+            opacity: 0.4;
+        }
+        
+        /* RESPONSIVE BREAKPOINTS */
+        
+        /* Tablet */
+        @media (max-width: 1024px) {
+            #sidebar {
+                flex: 0 0 260px;
+            }
+            
+            h1 {
+                font-size: 1.2em;
+            }
+        }
+        
+        /* Mobile */
+        @media (max-width: 768px) {
+            #mainContainer {
+                flex-direction: column;
+            }
+            
+            #sidebar {
+                display: none;
+            }
+            
+            #gameArea {
+                flex: 1;
+                padding: 5px;
+            }
+            
+            #mobileControls {
+                display: block;
+            }
+            
+            h1 {
+                font-size: 1.1em;
+            }
+        }
+        
+        /* Very small mobile */
+        @media (max-width: 360px) {
+            .mobile-tower-btn {
+                font-size: 0.7em;
+                padding: 8px 3px;
+            }
+            
+            .mobile-stats {
+                font-size: 0.75em;
+            }
+        }
+        
+        /* Landscape mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            #mainContainer {
+                flex-direction: row;
+            }
+            
+            #sidebar {
+                display: flex;
+                flex: 0 0 200px;
+                font-size: 0.85em;
+            }
+            
+            #mobileControls {
+                display: none;
+            }
+            
+            h1 {
+                font-size: 1em;
+            }
+            
+            .panel {
+                padding: 6px;
+            }
+            
+            .tower-btn {
+                padding: 5px;
+                font-size: 0.75em;
+            }
+        }
+        
+        /* Element Panel Styles */
+        .element-icons {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            padding: 6px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 6px;
+            min-height: 30px;
+        }
+        
+        .element-icon {
+            font-size: 1.2em;
+            filter: grayscale(100%);
+            opacity: 0.3;
+            transition: all 0.3s;
+            padding: 6px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.2);
+            border: 2px solid transparent;
+        }
+        
+        .element-icon.unlocked {
+            filter: grayscale(0%);
+            opacity: 1;
+            animation: elementUnlock 0.5s ease-out;
+            box-shadow: 0 0 10px currentColor;
+        }
+        
+        .element-icon.unlocked#element-fire {
+            background: rgba(255, 107, 53, 0.3);
+            border-color: #ff6b35;
+            color: #ff6b35;
+        }
+        
+        .element-icon.unlocked#element-ice {
+            background: rgba(116, 185, 255, 0.3);
+            border-color: #74b9ff;
+            color: #74b9ff;
+        }
+        
+        .element-icon.unlocked#element-lightning {
+            background: rgba(255, 234, 167, 0.3);
+            border-color: #ffeaa7;
+            color: #ffeaa7;
+        }
+        
+        .element-icon.unlocked#element-nature {
+            background: rgba(85, 239, 196, 0.3);
+            border-color: #55efc4;
+            color: #55efc4;
+        }
+        
+        .element-icon.unlocked#element-shadow {
+            background: rgba(162, 155, 254, 0.3);
+            border-color: #a29bfe;
+            color: #a29bfe;
+        }
+        
+        .element-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .element-label {
+            font-size: 0.65em;
+            color: #c8e6c9;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        @keyframes elementUnlock {
+            0% { transform: scale(0) rotate(0deg); }
+            50% { transform: scale(1.3) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+        
+        .synergy-list {
+            font-size: 0.65em;
+            color: #ffd54f;
+            margin-top: 4px;
+        }
+        
+        .synergy-item {
+            background: rgba(0,0,0,0.2);
+            padding: 2px 4px;
+            border-radius: 3px;
+            margin: 1px 0;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #1b5e20 100%);
+            border: 4px solid #5d4037;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 90%;
+            width: 700px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+        
+        .modal-content h2 {
+            color: #ffd54f;
+            margin-bottom: 10px;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .modal-subtitle {
+            color: #c8e6c9;
+            font-size: 1.2em;
+            margin-bottom: 25px;
+        }
+        
+        .element-cards {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .element-card {
+            flex: 1;
+            min-width: 150px;
+            max-width: 200px;
+            background: linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 100%);
+            border: 3px solid;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .element-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        
+        .element-card.fire { border-color: #ff6b35; background: linear-gradient(135deg, rgba(255,107,53,0.3) 0%, rgba(0,0,0,0.3) 100%); }
+        .element-card.ice { border-color: #74b9ff; background: linear-gradient(135deg, rgba(116,185,255,0.3) 0%, rgba(0,0,0,0.3) 100%); }
+        .element-card.lightning { border-color: #ffeaa7; background: linear-gradient(135deg, rgba(255,234,167,0.3) 0%, rgba(0,0,0,0.3) 100%); }
+        .element-card.nature { border-color: #55efc4; background: linear-gradient(135deg, rgba(85,239,196,0.3) 0%, rgba(0,0,0,0.3) 100%); }
+        .element-card.shadow { border-color: #a29bfe; background: linear-gradient(135deg, rgba(162,155,254,0.3) 0%, rgba(0,0,0,0.3) 100%); }
+        
+        .element-card .icon {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+        }
+        
+        .element-card .name {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+        
+        .element-card .theme {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-bottom: 12px;
+            color: #ffd54f;
+        }
+        
+        .element-card .description {
+            font-size: 0.8em;
+            line-height: 1.4;
+            color: #c8e6c9;
+        }
+        
+        .element-card .preview {
+            font-size: 0.75em;
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 6px;
+            color: #fff;
+        }
+        
+        .timer {
+            font-size: 1.3em;
+            color: #e74c3c;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        
+        /* Boss Rush Button */
+        .boss-rush-btn {
+            background: linear-gradient(135deg, #8e44ad 0%, #6c3483 100%);
+            border-color: #5b2c6f;
+            margin-top: 10px;
+        }
+        
+        .boss-rush-btn:hover {
+            background: linear-gradient(135deg, #9b59b6 0%, #7d3c98 100%);
+        }
+        
+        .unlock-message {
+            background: linear-gradient(135deg, rgba(142,68,173,0.3) 0%, rgba(0,0,0,0.2) 100%);
+            border: 2px solid #8e44ad;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .unlock-message h3 {
+            color: #ffd54f;
+            margin-bottom: 5px;
+        }
+        
+        .unlock-message p {
+            color: #c8e6c9;
+            font-size: 0.9em;
+        }
+        
+        .special-reward {
+            color: #ffd700;
+            font-size: 1.3em;
+            margin-top: 15px;
+            text-shadow: 0 0 10px rgba(255,215,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header id="header">
+            <h1>⚔️ Guardians of the Realm ⚔️</h1>
+            <div class="header-controls">
+                <button class="header-btn" onclick="togglePause()" title="Pause/Resume">⏸️</button>
+                <button class="header-btn" onclick="toggleSpeed()" title="Speed Up">⚡</button>
+                <button class="header-btn" onclick="startNextWave()" title="Start Next Wave">🚀</button>
+            </div>
+        </header>
+        
+        <div id="mainContainer">
+            <div id="gameArea">
+                <canvas id="gameCanvas" width="800" height="480"></canvas>
+            </div>
+            
+            <aside id="sidebar">
+                <!-- Resources Panel -->
+                <div class="panel">
+                    <h3>📊 Resources</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span>💰 Gold:</span>
+                            <span id="goldDisplay" class="stat-value">200</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>❤️ Lives:</span>
+                            <span id="livesDisplay" class="stat-value">25</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>🌊 Wave:</span>
+                            <span id="waveDisplay" class="stat-value">0/30</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>⏱️ Timer:</span>
+                            <span id="timerDisplay" class="stat-value">20s</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>💀 Enemies:</span>
+                            <span id="enemiesDisplay" class="stat-value">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Build Towers Panel -->
+                <div class="panel">
+                    <h3>🏗️ Build</h3>
+                    <button class="tower-btn" id="btnArcher" onclick="selectTower('archer')">
+                        <span>🏹 Archer</span>
+                        <span class="cost">40g</span>
+                    </button>
+                    <button class="tower-btn" id="btnCrystal" onclick="selectTower('crystal')">
+                        <span>💎 Crystal</span>
+                        <span class="cost">70g</span>
+                    </button>
+                    <button class="tower-btn" id="btnVault" onclick="selectTower('vault')">
+                        <span>🏛️ Vault</span>
+                        <span class="cost">100g</span>
+                    </button>
+                </div>
+                
+                <!-- Guide Panel -->
+                <div class="panel">
+                    <h3>📖 Guide</h3>
+                    <div class="damage-type-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #e74c3c;"></div>
+                            <span>Physical</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #3498db;"></div>
+                            <span>Magic</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #f1c40f;"></div>
+                            <span>Light</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #95a5a6;"></div>
+                            <span>Heavy</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Audio Panel -->
+                <div class="panel">
+                    <h3>🎵 Audio</h3>
+                    <div class="audio-panel">
+                        <div class="track-info" id="currentTrackName">Take Control</div>
+                        <div class="track-controls">
+                            <button class="track-btn" onclick="previousTrack()">⏮️</button>
+                            <button class="track-btn" id="playPauseBtn" onclick="togglePlayPause()">⏸️</button>
+                            <button class="track-btn" onclick="nextTrack()">⏭️</button>
+                        </div>
+                        <div class="volume-control">
+                            <label>Music: <span id="musicVolLabel">50%</span></label>
+                            <input type="range" class="volume-slider" id="musicVolume" min="0" max="100" value="50" oninput="updateMusicVolume(this.value)">
+                        </div>
+                        <div class="volume-control">
+                            <label>SFX: <span id="sfxVolLabel">50%</span></label>
+                            <input type="range" class="volume-slider" id="sfxVolume" min="0" max="100" value="50" oninput="updateSFXVolume(this.value)">
+                        </div>
+                        <button class="mute-all-btn" id="muteAllBtn" onclick="toggleMute()">🔊 Mute All</button>
+                    </div>
+                </div>
+                
+                <!-- Elements Panel -->
+                <div class="panel">
+                    <h3>✨ Elements</h3>
+                    <div class="element-icons" id="unlockedElements">
+                        <div class="element-wrapper" id="wrapper-fire" style="display:none">
+                            <span class="element-icon" id="element-fire" title="Fire - Burning damage over time">🔥</span>
+                            <span class="element-label">Fire</span>
+                        </div>
+                        <div class="element-wrapper" id="wrapper-ice" style="display:none">
+                            <span class="element-icon" id="element-ice" title="Ice - Slow and freeze effects">❄️</span>
+                            <span class="element-label">Ice</span>
+                        </div>
+                        <div class="element-wrapper" id="wrapper-lightning" style="display:none">
+                            <span class="element-icon" id="element-lightning" title="Lightning - Chain damage and stuns">⚡</span>
+                            <span class="element-label">Lightning</span>
+                        </div>
+                        <div class="element-wrapper" id="wrapper-nature" style="display:none">
+                            <span class="element-icon" id="element-nature" title="Nature - Poison and regeneration">🌿</span>
+                            <span class="element-label">Nature</span>
+                        </div>
+                        <div class="element-wrapper" id="wrapper-shadow" style="display:none">
+                            <span class="element-icon" id="element-shadow" title="Shadow - Life drain and debuffs">🌑</span>
+                            <span class="element-label">Shadow</span>
+                        </div>
+                    </div>
+                    <div class="info-text" id="nextElementInfo">
+                        Next element at wave 5
+                    </div>
+                    <div class="synergy-list" id="activeSynergies"></div>
+                </div>
+                
+            </aside>
+        </div>
+        
+        <!-- Mobile Controls -->
+        <div id="mobileControls">
+            <div class="mobile-stats">
+                <span>💰 <span id="mobileGold">200</span></span>
+                <span>❤️ <span id="mobileLives">25</span></span>
+                <span>🌊 <span id="mobileWave">0/30</span></span>
+            </div>
+            <div class="mobile-tower-bar">
+                <button class="mobile-tower-btn" id="mobileBtnArcher" onclick="selectTower('archer')">🏹<br>40g</button>
+                <button class="mobile-tower-btn" id="mobileBtnCrystal" onclick="selectTower('crystal')">💎<br>70g</button>
+                <button class="mobile-tower-btn" id="mobileBtnVault" onclick="selectTower('vault')">🏛️<br>100g</button>
+                <button class="mobile-tower-btn" onclick="togglePause()">⏸️</button>
+                <button class="mobile-tower-btn" onclick="startNextWave()">🚀</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upgrade Panel (Popup) -->
+    <div class="upgrade-panel" id="upgradePanel">
+        <button class="close-btn" onclick="closeUpgradePanel()">×</button>
+        <h3>⬆️ Upgrade Tower</h3>
+        <div id="selectedTowerInfo" class="selected-tower-info"></div>
+        <div id="upgradeButtons"></div>
+        <button class="control-btn secondary" style="width: 100%; margin-top: 10px;" onclick="sellSelectedTower()">💰 Sell (70%)</button>
+    </div>
+    
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen">
+        <div class="end-screen-content">
+            <h2>💀 GAME OVER 💀</h2>
+            <p>Wave: <span id="finalWave">0</span>/30</p>
+            <button class="restart-btn" onclick="restartGame()">🔄 Play Again</button>
+        </div>
+    </div>
+    
+    <!-- Victory Screen -->
+    <div id="victoryScreen">
+        <div class="end-screen-content">
+            <h2>🏆 VICTORY! 🏆</h2>
+            <p>All 30 waves completed!</p>
+            <div class="unlock-message" id="bossRushUnlock" style="display:none">
+                <h3>🎉 Boss Rush Mode Unlocked!</h3>
+                <p>Challenge yourself against all bosses back-to-back</p>
+            </div>
+            <button class="restart-btn" onclick="restartGame()">🔄 Play Again</button>
+            <button class="restart-btn boss-rush-btn" id="bossRushBtn" onclick="startBossRush()" style="display:none">👹 Boss Rush</button>
+        </div>
+    </div>
+    
+    <!-- Element Selection Modal -->
+    <div id="elementSelectionModal" class="modal">
+        <div class="modal-content">
+            <h2>✨ Choose Your Element ✨</h2>
+            <p class="modal-subtitle">Wave <span id="elementWaveNumber">5</span> Milestone</p>
+            <div class="element-cards" id="elementCardsContainer">
+                <!-- Element cards will be generated by JavaScript -->
+            </div>
+            <div class="timer">Auto-select in: <span id="elementTimer">30</span>s</div>
+        </div>
+    </div>
+    
+    <!-- Tower Hover Tooltip -->
+    <div id="towerTooltip" class="tower-tooltip"></div>
+    
+    <script src="game.js"></script>
+</body>
+</html>
