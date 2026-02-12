@@ -554,26 +554,32 @@
         .mobile-stats {
             display: flex;
             justify-content: space-around;
-            margin-bottom: 8px;
-            font-size: 0.85em;
+            margin-bottom: 10px;
+            font-size: 0.95em;
         }
         
         .mobile-tower-bar {
-            display: flex;
-            gap: 5px;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
         }
         
         .mobile-tower-btn {
-            flex: 1;
-            padding: 10px 5px;
+            min-height: 58px;
+            padding: 8px 6px;
             background: linear-gradient(135deg, #8d6e63 0%, #6d4c41 100%);
             border: 2px solid #5d4037;
-            border-radius: 6px;
+            border-radius: 8px;
             color: white;
-            font-size: 0.75em;
+            font-size: 0.82em;
             text-align: center;
             cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            line-height: 1.1;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.35);
         }
         
         .mobile-tower-btn.selected {
@@ -597,8 +603,8 @@
             }
         }
 
-        /* Tablet portrait and small laptops */
-        @media (max-width: 1100px) and (min-width: 769px) {
+        /* Compact layouts: canvas top, panels bottom */
+        @media (max-width: 1100px) {
             #mainContainer {
                 flex-direction: column;
             }
@@ -624,17 +630,8 @@
             }
         }
         
-        /* Mobile and narrow tablets */
-        @media (max-width: 900px) {
-            #mainContainer {
-                flex-direction: column;
-                padding-bottom: calc(108px + env(safe-area-inset-bottom));
-            }
-            
-            #sidebar {
-                display: none;
-            }
-            
+        /* Mobile phones */
+        @media (max-width: 600px) {
             #gameArea {
                 flex: 1 1 auto;
                 padding: 6px;
@@ -643,13 +640,7 @@
             }
             
             #mobileControls {
-                display: block;
-                position: fixed;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                z-index: 60;
-                backdrop-filter: blur(6px);
+                display: none;
             }
             
             h1 {
@@ -657,23 +648,28 @@
             }
 
             .header-controls {
-                display: none;
+                gap: 6px;
             }
 
             #gameCanvas {
                 margin-top: 2px;
+            }
+
+            .panel {
+                min-width: 200px;
             }
         }
         
         /* Very small mobile */
         @media (max-width: 360px) {
             .mobile-tower-btn {
-                font-size: 0.7em;
-                padding: 8px 3px;
+                font-size: 0.72em;
+                min-height: 52px;
+                padding: 6px 4px;
             }
             
             .mobile-stats {
-                font-size: 0.75em;
+                font-size: 0.8em;
             }
         }
         
@@ -1101,8 +1097,10 @@
                 <button class="mobile-tower-btn" id="mobileBtnArcher" onclick="selectTower('archer')">🏹<br>40g</button>
                 <button class="mobile-tower-btn" id="mobileBtnCrystal" onclick="selectTower('crystal')">💎<br>70g</button>
                 <button class="mobile-tower-btn" id="mobileBtnVault" onclick="selectTower('vault')">🏛️<br>100g</button>
-                <button class="mobile-tower-btn" onclick="togglePause()">⏸️</button>
-                <button class="mobile-tower-btn" onclick="startNextWave()">🚀</button>
+                <button class="mobile-tower-btn" id="mobileBtnSpeed" onclick="toggleSpeed()">⚡<br>x1</button>
+                <button class="mobile-tower-btn" onclick="togglePause()">⏸️<br>Pause</button>
+                <button class="mobile-tower-btn" onclick="startNextWave()">🚀<br>Wave</button>
+                <button class="mobile-tower-btn" id="mobileBtnMusic" onclick="togglePlayPause()">🎵<br>On</button>
             </div>
         </div>
     </div>

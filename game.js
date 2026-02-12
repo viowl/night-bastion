@@ -716,6 +716,11 @@ class AudioManager {
         if (btn) {
             btn.textContent = this.isPlaying ? '⏸️' : '▶️';
         }
+
+        const mobileBtn = document.getElementById('mobileBtnMusic');
+        if (mobileBtn) {
+            mobileBtn.innerHTML = this.isPlaying ? '🎵<br>On' : '🎵<br>Off';
+        }
     }
     
     // Update track based on current wave (auto-switch)
@@ -3479,8 +3484,11 @@ function onResize() {
         const controlsHeight = (mobileControls && mobileControls.offsetParent !== null)
             ? mobileControls.offsetHeight
             : 0;
+        const sidebarHeight = (isColumnLayout && sidebarVisible)
+            ? sidebar.offsetHeight
+            : 0;
         availableWidth = window.innerWidth - 24;
-        availableHeight = window.innerHeight - headerHeight - controlsHeight - 24;
+        availableHeight = window.innerHeight - headerHeight - controlsHeight - sidebarHeight - 24;
     }
 
     availableWidth = Math.max(200, availableWidth);
@@ -4368,6 +4376,7 @@ function updateUI() {
     const mobileBtnArcher = document.getElementById('mobileBtnArcher');
     const mobileBtnCrystal = document.getElementById('mobileBtnCrystal');
     const mobileBtnVault = document.getElementById('mobileBtnVault');
+    const mobileBtnSpeed = document.getElementById('mobileBtnSpeed');
     
     if (mobileGold) mobileGold.textContent = gameState.gold;
     if (mobileLives) mobileLives.textContent = gameState.lives;
@@ -4382,6 +4391,11 @@ function updateUI() {
     if (mobileBtnArcher) mobileBtnArcher.classList.toggle('selected', gameState.selectedTowerType === 'ARCHER');
     if (mobileBtnCrystal) mobileBtnCrystal.classList.toggle('selected', gameState.selectedTowerType === 'CRYSTAL');
     if (mobileBtnVault) mobileBtnVault.classList.toggle('selected', gameState.selectedTowerType === 'VAULT');
+    if (mobileBtnSpeed) {
+        const isFast = gameState.gameSpeed === 2;
+        mobileBtnSpeed.innerHTML = `⚡<br>x${isFast ? 2 : 1}`;
+        mobileBtnSpeed.classList.toggle('selected', isFast);
+    }
 }
 
 // Update upgrade button highlights based on current gold
