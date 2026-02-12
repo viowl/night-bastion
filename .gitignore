@@ -1,0 +1,62 @@
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+jspm_packages/
+bower_components/
+
+# Build output
+dist/
+build/
+coverage/
+.nyc_output/
+out/
+
+# Env files
+.env
+.env.*
+
+# Editor directories and files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Optional caches
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+
+# Local history
+.history/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*~
