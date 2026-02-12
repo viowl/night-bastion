@@ -26,7 +26,7 @@
         
         #app {
             height: 100vh;
-            min-height: 100dvh;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
         }
@@ -624,10 +624,11 @@
             }
         }
         
-        /* Mobile */
-        @media (max-width: 768px) {
+        /* Mobile and narrow tablets */
+        @media (max-width: 900px) {
             #mainContainer {
                 flex-direction: column;
+                padding-bottom: calc(108px + env(safe-area-inset-bottom));
             }
             
             #sidebar {
@@ -643,8 +644,12 @@
             
             #mobileControls {
                 display: block;
-                position: static;
-                z-index: 10;
+                position: fixed;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 60;
+                backdrop-filter: blur(6px);
             }
             
             h1 {
@@ -652,9 +657,7 @@
             }
 
             .header-controls {
-                width: 100%;
-                justify-content: center;
-                flex-wrap: wrap;
+                display: none;
             }
 
             #gameCanvas {
