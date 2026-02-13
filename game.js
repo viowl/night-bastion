@@ -3545,10 +3545,24 @@ function onTouchMove(e) {
 
 function onTouchEnd(e) {
     e.preventDefault();
-    // Treat touch end as a click if not much movement
-    const moveDist = Math.hypot(mouseX - touchStartX, mouseY - touchStartY);
+    const touch = e.changedTouches && e.changedTouches[0];
+    if (!touch) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = CANVAS_WIDTH / rect.width;
+    const scaleY = CANVAS_HEIGHT / rect.height;
+
+    const endX = (touch.clientX - rect.left) * scaleX;
+    const endY = (touch.clientY - rect.top) * scaleY;
+
+    // Keep cursor position in sync for previews/selection
+    mouseX = endX;
+    mouseY = endY;
+
+    // Treat touch end as tap if movement is small
+    const moveDist = Math.hypot(endX - touchStartX, endY - touchStartY);
     if (moveDist < 10) {
-        onMouseClick({clientX: 0, clientY: 0}); // Trigger click handler
+        handleCanvasTap(endX, endY);
     }
 }
 
@@ -3996,6 +4010,12 @@ function onMouseClick(e) {
     
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
+
+    handleCanvasTap(x, y);
+}
+
+function handleCanvasTap(x, y) {
+    if (gameState.isGameOver || gameState.isVictory) return;
     
     // Check if clicking on existing tower
     const gridPos = grid.worldToGrid(x, y);
