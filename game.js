@@ -602,6 +602,38 @@ class AudioManager {
         
         // Start playing first track
         this.playMusic(0);
+        this.setupAutoplayRecovery();
+    }
+
+    setupAutoplayRecovery() {
+        const tryPlay = () => {
+            if (!this.musicAudio || this.isMuted || !this.isPlaying) return;
+            this.musicAudio.play().catch(() => {});
+        };
+
+        // Try a few times automatically after load
+        let attempts = 0;
+        const retryTimer = setInterval(() => {
+            attempts++;
+            if (!this.musicAudio || !this.musicAudio.paused) {
+                clearInterval(retryTimer);
+                return;
+            }
+            tryPlay();
+            if (attempts >= 6) clearInterval(retryTimer);
+        }, 1000);
+
+        // Fallback for mobile autoplay restrictions
+        const unlockAudio = () => {
+            if (this.audioContext && this.audioContext.state === 'suspended') {
+                this.audioContext.resume().catch(() => {});
+            }
+            tryPlay();
+        };
+
+        document.addEventListener('touchstart', unlockAudio, { once: true });
+        document.addEventListener('click', unlockAudio, { once: true });
+        document.addEventListener('keydown', unlockAudio, { once: true });
     }
     
     playMusic(trackIndex) {

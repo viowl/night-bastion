@@ -635,7 +635,8 @@
         @media (max-width: 600px) {
             #gameArea {
                 flex: 1 1 auto;
-                padding: 6px;
+                min-height: 58vh;
+                padding: 4px;
                 align-items: flex-start;
                 justify-content: flex-start;
             }
@@ -662,18 +663,72 @@
 
             #sidebar {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
-                max-height: 46vh;
+                max-height: 31vh;
                 gap: 6px;
-                padding: 8px;
+                padding: 6px;
+            }
+
+            .panel {
+                padding: 5px;
+                border-width: 1px;
             }
 
             .panel h3 {
-                font-size: 0.8em;
+                font-size: 0.74em;
+                margin: 0 0 3px 0;
+                padding-bottom: 1px;
             }
 
             .stat-item {
-                font-size: 0.78em;
-                padding: 3px 4px;
+                font-size: 0.72em;
+                padding: 2px 3px;
+            }
+
+            .stats-grid {
+                gap: 3px;
+            }
+
+            .tower-btn {
+                padding: 5px 6px;
+                font-size: 0.72em;
+                margin: 1px 0;
+            }
+
+            .cost {
+                font-size: 0.72em;
+                padding: 1px 5px;
+            }
+
+            .track-info {
+                font-size: 0.68em;
+                padding: 2px;
+            }
+
+            .track-btn,
+            .mute-all-btn {
+                font-size: 0.72em;
+                padding: 3px 5px;
+            }
+
+            .volume-control label {
+                font-size: 0.62em;
+            }
+
+            .element-icons {
+                gap: 4px;
+                padding: 4px;
+            }
+
+            .element-icon {
+                font-size: 1em;
+                padding: 4px;
+            }
+
+            .element-label,
+            .synergy-list,
+            .info-text,
+            .damage-type-legend {
+                font-size: 0.6em;
             }
         }
         
