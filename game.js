@@ -4313,6 +4313,9 @@ function buildTower(x, y) {
     
     createExplosion(tower.position.x, tower.position.y, tower.type.color);
     createFloatingText(tower.position.x, tower.position.y - 20, `-${towerType.cost}g`, "#e74c3c");
+
+    // Exit build mode after successful placement (better for touch screens)
+    cancelBuilding();
 }
 
 function upgradeTower(branchIndex) {

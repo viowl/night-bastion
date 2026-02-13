@@ -633,8 +633,12 @@
         
         /* Mobile phones */
         @media (max-width: 600px) {
+            #mainContainer {
+                gap: 2px;
+            }
+
             #gameArea {
-                flex: 0 0 auto;
+                flex: 1 1 0%;
                 min-height: 0;
                 padding: 2px 4px 0;
                 align-items: flex-start;
@@ -662,25 +666,25 @@
             }
 
             #sidebar {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                max-height: 31vh;
-                gap: 6px;
-                padding: 4px 6px 6px;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                max-height: 28vh;
+                gap: 4px;
+                padding: 3px 4px 4px;
             }
 
             .panel {
-                padding: 5px;
+                padding: 4px;
                 border-width: 1px;
             }
 
             .panel h3 {
-                font-size: 0.74em;
-                margin: 0 0 3px 0;
+                font-size: 0.7em;
+                margin: 0 0 2px 0;
                 padding-bottom: 1px;
             }
 
             .stat-item {
-                font-size: 0.72em;
+                font-size: 0.68em;
                 padding: 2px 3px;
             }
 
@@ -689,8 +693,8 @@
             }
 
             .tower-btn {
-                padding: 5px 6px;
-                font-size: 0.72em;
+                padding: 4px 5px;
+                font-size: 0.68em;
                 margin: 1px 0;
             }
 
@@ -706,8 +710,8 @@
 
             .track-btn,
             .mute-all-btn {
-                font-size: 0.72em;
-                padding: 3px 5px;
+                font-size: 0.68em;
+                padding: 2px 4px;
             }
 
             .volume-control label {
